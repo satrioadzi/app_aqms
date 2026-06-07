@@ -1,0 +1,26 @@
+{
+  "aqms": {
+    "nodes": {
+      "node_1": {
+        "name": "biji 1",
+        "sensors": {
+          "CO": 1,
+          "CO2": 1,
+          "kelembapan": 1,
+          "suhu": 1
+        },
+        "status": ""
+      },
+      "node_2": {
+        "name": "biji2",
+        "sensors": {
+          "CO": 1,
+          "CO2": 1,
+          "kelembapan": 1,
+          "suhu": 1
+        },
+        "status": ""
+      }
+    }
+  }
+}
