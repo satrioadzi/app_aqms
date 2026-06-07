@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "519958265576",
+    "firebase_url": "https://aqms-1d833-default-rtdb.firebaseio.com",
+    "project_id": "aqms-1d833",
+    "storage_bucket": "aqms-1d833.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519958265576:android:7e9c6275702bfb1859135d",
+        "android_client_info": {
+          "package_name": "com.example.app_aqms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTg0XDdLbxX5ZGlsi8YvXPyX1-1vr_pV4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
