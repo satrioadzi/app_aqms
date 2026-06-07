@@ -755,28 +755,65 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
 
-              // Summary Statistik (Scrollable Row)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildSummaryCard('Total', total, const Color(0xFF3B82F6)),
-                      const SizedBox(width: 8),
-                      _buildSummaryCard('Good', goodCount, const Color(0xFF10B981)),
-                      const SizedBox(width: 8),
-                      _buildSummaryCard('Moderate', moderateCount, const Color(0xFF06B6D4)),
-                      const SizedBox(width: 8),
-                      _buildSummaryCard('Unhealthy', unhealthyCount, const Color(0xFFF59E0B)),
-                      const SizedBox(width: 8),
-                      _buildSummaryCard('Very Unhealthy', veryUnhealthyCount, const Color(0xFFEF4444)),
-                      const SizedBox(width: 8),
-                      _buildSummaryCard('Hazardous', hazardousCount, const Color(0xFFB91C1C)),
-                      const SizedBox(width: 8),
-                      _buildSummaryCard('Offline', offlineCount, const Color(0xFF64748B)),
-                    ],
-                  ),
+              // Summary Statistik (Compact Card)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF334155)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'RINGKASAN STATUS KUALITAS UDARA',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
+                          ),
+                          child: Text(
+                            'Total: $total Node',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF3B82F6),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildStatusChip('Good', goodCount, const Color(0xFF10B981)),
+                        _buildStatusChip('Moderate', moderateCount, const Color(0xFF06B6D4)),
+                        _buildStatusChip('Unhealthy', unhealthyCount, const Color(0xFFF59E0B)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _buildStatusChip('Very Unh.', veryUnhealthyCount, const Color(0xFFEF4444)),
+                        _buildStatusChip('Hazardous', hazardousCount, const Color(0xFFB91C1C)),
+                        _buildStatusChip('Offline', offlineCount, const Color(0xFF64748B)),
+                      ],
+                    ),
+                  ],
                 ),
               ),
 
@@ -931,27 +968,50 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCard(String title, int count, Color color) {
-    return Container(
-      width: 72,
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
-      ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$count',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color),
-          ),
-        ],
+  Widget _buildStatusChip(String label, int count, Color color) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              '$count',
+              style: TextStyle(
+                fontSize: 10,
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
