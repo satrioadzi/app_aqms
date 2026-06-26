@@ -69,7 +69,8 @@ class SensorDataPoint {
   final double temperature;
   final double humidity;
   final int co2;
-  final int co;
+  final double co;
+  final int aqi;
 
   SensorDataPoint({
     required this.timestamp,
@@ -77,6 +78,7 @@ class SensorDataPoint {
     required this.humidity,
     required this.co2,
     required this.co,
+    required this.aqi,
   });
 }
 
@@ -87,7 +89,8 @@ class SensorNode {
   final double temperature;
   final double humidity;
   final int co2;
-  final int co;
+  final double co;
+  final int aqi;
   final String status; // 'Aman', 'Waspada', 'Bahaya', 'Offline'
   final List<SensorDataPoint> dataHistory;
 
@@ -98,6 +101,7 @@ class SensorNode {
     required this.humidity,
     required this.co2,
     required this.co,
+    required this.aqi,
     required this.status,
     required this.dataHistory,
   });
@@ -129,7 +133,8 @@ class AppState extends ChangeNotifier {
         temperature: 32.5,
         humidity: 60.0,
         co2: 400,
-        co: 10,
+        co: 10.0,
+        aqi: 22,
         status: 'Good',
         dataHistory: [
           SensorDataPoint(
@@ -137,28 +142,32 @@ class AppState extends ChangeNotifier {
             temperature: 31.0,
             humidity: 62.0,
             co2: 380,
-            co: 8,
+            co: 8.0,
+            aqi: 18,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 20)),
             temperature: 31.8,
             humidity: 61.0,
             co2: 390,
-            co: 9,
+            co: 9.0,
+            aqi: 19,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 10)),
             temperature: 32.2,
             humidity: 60.5,
             co2: 395,
-            co: 9,
+            co: 9.0,
+            aqi: 20,
           ),
           SensorDataPoint(
             timestamp: now,
             temperature: 32.5,
             humidity: 60.0,
             co2: 400,
-            co: 10,
+            co: 10.0,
+            aqi: 22,
           ),
         ],
       ),
@@ -168,7 +177,8 @@ class AppState extends ChangeNotifier {
         temperature: 35.0,
         humidity: 55.0,
         co2: 800,
-        co: 45,
+        co: 45.0,
+        aqi: 126,
         status: 'Unhealthy',
         dataHistory: [
           SensorDataPoint(
@@ -176,28 +186,32 @@ class AppState extends ChangeNotifier {
             temperature: 33.5,
             humidity: 57.0,
             co2: 750,
-            co: 40,
+            co: 40.0,
+            aqi: 112,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 20)),
             temperature: 34.2,
             humidity: 56.0,
             co2: 770,
-            co: 42,
+            co: 42.0,
+            aqi: 119,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 10)),
             temperature: 34.6,
             humidity: 55.5,
             co2: 790,
-            co: 44,
+            co: 44.0,
+            aqi: 124,
           ),
           SensorDataPoint(
             timestamp: now,
             temperature: 35.0,
             humidity: 55.0,
             co2: 800,
-            co: 45,
+            co: 45.0,
+            aqi: 126,
           ),
         ],
       ),
@@ -207,7 +221,8 @@ class AppState extends ChangeNotifier {
         temperature: 38.2,
         humidity: 40.0,
         co2: 1200,
-        co: 150,
+        co: 150.0,
+        aqi: 342,
         status: 'Hazardous',
         dataHistory: [
           SensorDataPoint(
@@ -215,28 +230,32 @@ class AppState extends ChangeNotifier {
             temperature: 36.5,
             humidity: 42.0,
             co2: 1050,
-            co: 120,
+            co: 120.0,
+            aqi: 281,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 20)),
             temperature: 37.3,
             humidity: 41.0,
             co2: 1120,
-            co: 135,
+            co: 135.0,
+            aqi: 308,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 10)),
             temperature: 37.8,
             humidity: 40.5,
             co2: 1160,
-            co: 145,
+            co: 145.0,
+            aqi: 331,
           ),
           SensorDataPoint(
             timestamp: now,
             temperature: 38.2,
             humidity: 40.0,
             co2: 1200,
-            co: 150,
+            co: 150.0,
+            aqi: 342,
           ),
         ],
       ),
@@ -246,7 +265,8 @@ class AppState extends ChangeNotifier {
         temperature: 22.0,
         humidity: 50.0,
         co2: 350,
-        co: 5,
+        co: 5.0,
+        aqi: 13,
         status: 'Offline',
         dataHistory: [
           SensorDataPoint(
@@ -254,42 +274,54 @@ class AppState extends ChangeNotifier {
             temperature: 21.5,
             humidity: 51.0,
             co2: 340,
-            co: 5,
+            co: 5.0,
+            aqi: 12,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 20)),
             temperature: 21.8,
             humidity: 50.5,
             co2: 345,
-            co: 5,
+            co: 5.0,
+            aqi: 12,
           ),
           SensorDataPoint(
             timestamp: now.subtract(const Duration(minutes: 10)),
             temperature: 21.9,
             humidity: 50.2,
             co2: 348,
-            co: 5,
+            co: 5.0,
+            aqi: 13,
           ),
           SensorDataPoint(
             timestamp: now,
             temperature: 22.0,
             humidity: 50.0,
             co2: 350,
-            co: 5,
+            co: 5.0,
+            aqi: 13,
           ),
         ],
       ),
     ];
   }
 
-  String _determineStatus(double temp, int co2, int co) {
-    if (temp > 40.0 || co > 100 || co2 > 1500) {
+  int _calculateAqi(double co, int co2) {
+    double co2Contrib = (co2 - 350) * 0.12;
+    if (co2Contrib < 5) co2Contrib = 5;
+    double coContrib = co * 1.6;
+    int calculated = (co2Contrib + coContrib).round();
+    return calculated.clamp(5, 500);
+  }
+
+  String _determineStatus(double temp, int co2, double co, int aqi) {
+    if (aqi > 300 || temp > 40.0 || co > 100 || co2 > 1500) {
       return 'Hazardous';
-    } else if (temp > 37.0 || co > 80 || co2 > 1000) {
+    } else if (aqi > 200 || temp > 37.0 || co > 80 || co2 > 1000) {
       return 'Very Unhealthy';
-    } else if (temp > 35.0 || co > 40 || co2 > 700) {
+    } else if (aqi > 150 || temp > 35.0 || co > 40 || co2 > 700) {
       return 'Unhealthy';
-    } else if (temp > 33.0 || co > 15 || co2 > 500) {
+    } else if (aqi > 50 || temp > 33.0 || co > 15 || co2 > 500) {
       return 'Moderate';
     } else {
       return 'Good';
@@ -310,17 +342,34 @@ class AppState extends ChangeNotifier {
           data.forEach((key, val) {
             if (val is Map) {
               final id = val['id']?.toString() ?? key.toString();
-              final name = val['name']?.toString() ?? 'Sensor Node';
+              final name = val['name']?.toString() ?? id.replaceAll('_', ' ');
               
-              final sensors = val['sensors'] as Map?;
-              final temp = (sensors?['suhu'] as num?)?.toDouble() ?? 0.0;
-              final hum = (sensors?['kelembapan'] as num?)?.toDouble() ?? 0.0;
-              final co2 = (sensors?['CO2'] as num?)?.toInt() ?? 0;
-              final co = (sensors?['CO'] as num?)?.toInt() ?? 0;
+              double temp = 0.0;
+              double hum = 0.0;
+              int co2 = 0;
+              double co = 0.0;
+              int aqi = 0;
+
+              if (val.containsKey('temperature') || val.containsKey('humidity') || val.containsKey('co2') || val.containsKey('co') || val.containsKey('aqi')) {
+                // New direct structure
+                temp = (val['temperature'] as num?)?.toDouble() ?? 0.0;
+                hum = (val['humidity'] as num?)?.toDouble() ?? 0.0;
+                co2 = (val['co2'] as num?)?.toInt() ?? 0;
+                co = (val['co'] as num?)?.toDouble() ?? 0.0;
+                aqi = (val['aqi'] as num?)?.toInt() ?? 0;
+              } else {
+                // Old nested sensors structure
+                final sensors = val['sensors'] as Map?;
+                temp = (sensors?['suhu'] as num?)?.toDouble() ?? 0.0;
+                hum = (sensors?['kelembapan'] as num?)?.toDouble() ?? 0.0;
+                co2 = (sensors?['CO2'] as num?)?.toInt() ?? 0;
+                co = (sensors?['CO'] as num?)?.toDouble() ?? 0.0;
+                aqi = (sensors?['aqi'] as num?)?.toInt() ?? _calculateAqi(co, co2);
+              }
 
               String status = val['status']?.toString() ?? '';
               if (status.isEmpty) {
-                status = _determineStatus(temp, co2, co);
+                status = _determineStatus(temp, co2, co, aqi);
               }
 
               List<SensorDataPoint> history = _parseHistory(val['dataHistory']);
@@ -335,7 +384,8 @@ class AppState extends ChangeNotifier {
                 final valueChanged = lastPoint.temperature != temp ||
                                      lastPoint.humidity != hum ||
                                      lastPoint.co2 != co2 ||
-                                     lastPoint.co != co;
+                                     lastPoint.co != co ||
+                                     lastPoint.aqi != aqi;
                 if (valueChanged && timeDiff.inSeconds > 10) {
                   isNewDataPoint = true;
                 }
@@ -348,6 +398,7 @@ class AppState extends ChangeNotifier {
                   humidity: hum,
                   co2: co2,
                   co: co,
+                  aqi: aqi,
                 );
                 history.add(newPoint);
                 if (history.length > 48) {
@@ -361,6 +412,7 @@ class AppState extends ChangeNotifier {
                   'humidity': p.humidity,
                   'co2': p.co2,
                   'co': p.co,
+                  'aqi': p.aqi,
                 }).toList();
                 
                 historyUpdates['$id/id'] = id;
@@ -376,6 +428,7 @@ class AppState extends ChangeNotifier {
                 humidity: hum,
                 co2: co2,
                 co: co,
+                aqi: aqi,
                 status: status,
                 dataHistory: history,
               ));
@@ -439,7 +492,8 @@ class AppState extends ChangeNotifier {
       temperature: (map['temperature'] as num?)?.toDouble() ?? 0.0,
       humidity: (map['humidity'] as num?)?.toDouble() ?? 0.0,
       co2: (map['co2'] as num?)?.toInt() ?? 0,
-      co: (map['co'] as num?)?.toInt() ?? 0,
+      co: (map['co'] as num?)?.toDouble() ?? 0.0,
+      aqi: (map['aqi'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -451,12 +505,11 @@ class AppState extends ChangeNotifier {
       uploadData[node.id] = {
         'id': node.id,
         'name': node.name,
-        'sensors': {
-          'suhu': node.temperature,
-          'kelembapan': node.humidity,
-          'CO2': node.co2,
-          'CO': node.co,
-        },
+        'temperature': node.temperature,
+        'humidity': node.humidity,
+        'co2': node.co2,
+        'co': node.co,
+        'aqi': node.aqi,
         'status': node.status,
         'dataHistory': node.dataHistory.map((p) => {
           'timestamp': p.timestamp.millisecondsSinceEpoch,
@@ -464,6 +517,7 @@ class AppState extends ChangeNotifier {
           'humidity': p.humidity,
           'co2': p.co2,
           'co': p.co,
+          'aqi': p.aqi,
         }).toList(),
       };
     }
@@ -487,7 +541,6 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  // Menambahkan data point baru secara global untuk simulasi berkala
   void simulateStep() {
     _lastUpdateTime = DateTime.now();
     final ref = FirebaseDatabase.instance.ref('aqms/nodes');
@@ -505,6 +558,7 @@ class AppState extends ChangeNotifier {
           humidity: lastPoint.humidity,
           co2: lastPoint.co2,
           co: lastPoint.co,
+          aqi: lastPoint.aqi,
         );
         final updatedHistory = List<SensorDataPoint>.from(node.dataHistory)..add(newPoint);
         if (updatedHistory.length > 48) updatedHistory.removeAt(0);
@@ -517,6 +571,7 @@ class AppState extends ChangeNotifier {
             'humidity': p.humidity,
             'co2': p.co2,
             'co': p.co,
+            'aqi': p.aqi,
           }).toList(),
         });
         continue;
@@ -543,13 +598,13 @@ class AppState extends ChangeNotifier {
       if (newCo2 < 300) newCo2 = 350;
       if (newCo2 > 2000) newCo2 = 1800;
 
-      int deltaCo = (i == 0) ? 1 : (i == 1) ? 4 : -3;
-      int newCo = lastPoint.co + deltaCo;
-      if (newCo < 0) newCo = 2;
-      if (newCo > 300) newCo = 250;
+      double deltaCo = (i == 0) ? 1.0 : (i == 1) ? 4.0 : -3.0;
+      double newCo = lastPoint.co + deltaCo;
+      if (newCo < 0.0) newCo = 0.5;
+      if (newCo > 300.0) newCo = 250.0;
 
-      // Logika Penentuan Status
-      String newStatus = _determineStatus(newTemp, newCo2, newCo);
+      int newAqi = _calculateAqi(newCo, newCo2);
+      String newStatus = _determineStatus(newTemp, newCo2, newCo, newAqi);
 
       final newPoint = SensorDataPoint(
         timestamp: _lastUpdateTime,
@@ -557,6 +612,7 @@ class AppState extends ChangeNotifier {
         humidity: newHum,
         co2: newCo2,
         co: newCo,
+        aqi: newAqi,
       );
 
       final updatedHistory = List<SensorDataPoint>.from(node.dataHistory)..add(newPoint);
@@ -565,12 +621,11 @@ class AppState extends ChangeNotifier {
       }
 
       ref.child(node.id).update({
-        'sensors': {
-          'suhu': newPoint.temperature,
-          'kelembapan': newPoint.humidity,
-          'CO2': newPoint.co2,
-          'CO': newPoint.co,
-        },
+        'temperature': newPoint.temperature,
+        'humidity': newPoint.humidity,
+        'co2': newPoint.co2,
+        'co': newPoint.co,
+        'aqi': newPoint.aqi,
         'status': newStatus,
         'dataHistory': updatedHistory.map((p) => {
           'timestamp': p.timestamp.millisecondsSinceEpoch,
@@ -578,6 +633,7 @@ class AppState extends ChangeNotifier {
           'humidity': p.humidity,
           'co2': p.co2,
           'co': p.co,
+          'aqi': p.aqi,
         }).toList(),
       });
     }
@@ -932,8 +988,9 @@ class DashboardScreen extends StatelessWidget {
                                 children: [
                                   _buildMiniSensorVal(Icons.thermostat, '${node.temperature}°C', 'Suhu', Colors.orangeAccent),
                                   _buildMiniSensorVal(Icons.water_drop, '${node.humidity}%', 'Lembab', Colors.blueAccent),
-                                  _buildMiniSensorVal(Icons.cloud, '${node.co2}', 'CO2 ppm', Colors.tealAccent),
-                                  _buildMiniSensorVal(Icons.warning, '${node.co}', 'CO ppm', Colors.purpleAccent),
+                                  _buildMiniSensorVal(Icons.cloud, '${node.co2}', 'CO2', Colors.tealAccent),
+                                  _buildMiniSensorVal(Icons.warning, node.co % 1 == 0 ? node.co.toInt().toString() : node.co.toString(), 'CO', Colors.purpleAccent),
+                                  _buildMiniSensorVal(Icons.air, '${node.aqi}', 'AQI', Colors.greenAccent),
                                 ],
                               ),
 
@@ -1209,6 +1266,7 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
               if (_selectedSensorIndex == 1) unit = ' %';
               if (_selectedSensorIndex == 2) unit = ' ppm';
               if (_selectedSensorIndex == 3) unit = ' ppm';
+              if (_selectedSensorIndex == 4) unit = '';
 
               return LineTooltipItem(
                 '$val$unit',
@@ -1265,6 +1323,7 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
         final humidityValues = sensorData.map((d) => d.humidity).toList();
         final co2Values = sensorData.map((d) => d.co2.toDouble()).toList();
         final coValues = sensorData.map((d) => d.co.toDouble()).toList();
+        final aqiValues = sensorData.map((d) => d.aqi.toDouble()).toList();
 
         // Tentukan data aktif sesuai sensor yang dipilih
         List<double> activeValues = [];
@@ -1302,12 +1361,26 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
             sensorColor = Colors.purpleAccent;
             sensorIcon = Icons.warning;
             break;
+          case 4:
+            activeValues = aqiValues;
+            sensorTitle = 'AQI';
+            sensorUnit = '';
+            sensorColor = Colors.greenAccent;
+            sensorIcon = Icons.air;
+            break;
         }
 
         // Hitung Statistik (Min, Max, Rata-rata)
         double minVal = activeValues.isEmpty ? 0 : activeValues.reduce((a, b) => a < b ? a : b);
         double maxVal = activeValues.isEmpty ? 0 : activeValues.reduce((a, b) => a > b ? a : b);
         double avgVal = activeValues.isEmpty ? 0 : activeValues.reduce((a, b) => a + b) / activeValues.length;
+
+        String formatStatVal(double value) {
+          if (_selectedSensorIndex == 2 || _selectedSensorIndex == 4) {
+            return value.toInt().toString();
+          }
+          return value.toStringAsFixed(1);
+        }
 
         return Scaffold(
           appBar: AppBar(
@@ -1392,13 +1465,14 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
                   children: [
                     _buildInteractiveTabCard(0, 'Suhu', '${node.temperature}°C', Icons.thermostat, Colors.orangeAccent),
                     _buildInteractiveTabCard(1, 'Lembab', '${node.humidity}%', Icons.water_drop, Colors.blueAccent),
+                    _buildInteractiveTabCard(4, 'AQI', '${node.aqi}', Icons.air, Colors.greenAccent),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     _buildInteractiveTabCard(2, 'CO2', '${node.co2} ppm', Icons.cloud, const Color(0xFF14B8A6)),
-                    _buildInteractiveTabCard(3, 'CO', '${node.co} ppm', Icons.warning, Colors.purpleAccent),
+                    _buildInteractiveTabCard(3, 'CO', '${node.co % 1 == 0 ? node.co.toInt().toString() : node.co.toString()} ppm', Icons.warning, Colors.purpleAccent),
                   ],
                 ),
 
@@ -1462,11 +1536,11 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildStatValue('TERENDAH', minVal.toStringAsFixed(1) + sensorUnit, sensorColor),
+                            _buildStatValue('TERENDAH', formatStatVal(minVal) + sensorUnit, sensorColor),
                             Container(width: 1, height: 28, color: const Color(0xFF334155)),
-                            _buildStatValue('RATA-RATA', avgVal.toStringAsFixed(1) + sensorUnit, sensorColor),
+                            _buildStatValue('RATA-RATA', formatStatVal(avgVal) + sensorUnit, sensorColor),
                             Container(width: 1, height: 28, color: const Color(0xFF334155)),
-                            _buildStatValue('TERTINGGI', maxVal.toStringAsFixed(1) + sensorUnit, sensorColor),
+                            _buildStatValue('TERTINGGI', formatStatVal(maxVal) + sensorUnit, sensorColor),
                           ],
                         ),
                       ),
@@ -1513,11 +1587,12 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
                         ),
                         child: Table(
                           columnWidths: const {
-                            0: FlexColumnWidth(1.2),
-                            1: FlexColumnWidth(1.0),
-                            2: FlexColumnWidth(1.0),
-                            3: FlexColumnWidth(1.2),
-                            4: FlexColumnWidth(1.0),
+                            0: FlexColumnWidth(1.1),
+                            1: FlexColumnWidth(0.9),
+                            2: FlexColumnWidth(0.9),
+                            3: FlexColumnWidth(1.0),
+                            4: FlexColumnWidth(0.9),
+                            5: FlexColumnWidth(0.9),
                           },
                           border: const TableBorder(
                             horizontalInside: BorderSide(color: Color(0xFF334155), width: 1),
@@ -1531,37 +1606,41 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
                               ),
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                                  child: Text('Waktu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.grey), textAlign: TextAlign.center),
+                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                                  child: Text('Waktu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.grey), textAlign: TextAlign.center),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                                  child: Text('Suhu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.orangeAccent), textAlign: TextAlign.center),
+                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                                  child: Text('Suhu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.orangeAccent), textAlign: TextAlign.center),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                                  child: Text('Lembab', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.blueAccent), textAlign: TextAlign.center),
+                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                                  child: Text('Lembab', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.blueAccent), textAlign: TextAlign.center),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                                  child: Text('CO2', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF14B8A6)), textAlign: TextAlign.center),
+                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                                  child: Text('CO2', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Color(0xFF14B8A6)), textAlign: TextAlign.center),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                                  child: Text('CO', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.purpleAccent), textAlign: TextAlign.center),
+                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                                  child: Text('CO', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.purpleAccent), textAlign: TextAlign.center),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                                  child: Text('AQI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.greenAccent), textAlign: TextAlign.center),
                                 ),
                               ],
                             ),
                             // Row data (Dari yang terbaru di paling atas)
                             ...paginatedData.map((data) {
                               Color? rowColor;
-                              if (data.co2 > 1500 || data.co > 100 || data.temperature > 40.0) {
+                              if (data.aqi > 300 || data.co2 > 1500 || data.co > 100 || data.temperature > 40.0) {
                                 rowColor = const Color(0xFFB91C1C).withValues(alpha: 0.12); // Hazardous
-                              } else if (data.co2 > 1000 || data.co > 80 || data.temperature > 37.0) {
+                              } else if (data.aqi > 200 || data.co2 > 1000 || data.co > 80 || data.temperature > 37.0) {
                                 rowColor = const Color(0xFFEF4444).withValues(alpha: 0.08); // Very Unhealthy
-                              } else if (data.co2 > 700 || data.co > 40 || data.temperature > 35.0) {
+                              } else if (data.aqi > 150 || data.co2 > 700 || data.co > 40 || data.temperature > 35.0) {
                                 rowColor = const Color(0xFFF59E0B).withValues(alpha: 0.06); // Unhealthy
-                              } else if (data.co2 > 500 || data.co > 15 || data.temperature > 33.0) {
+                              } else if (data.aqi > 50 || data.co2 > 500 || data.co > 15 || data.temperature > 33.0) {
                                 rowColor = const Color(0xFF06B6D4).withValues(alpha: 0.04); // Moderate
                               }
 
@@ -1618,11 +1697,24 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
                                     child: Text(
-                                      '${data.co}',
+                                      data.co % 1 == 0 ? data.co.toInt().toString() : data.co.toString(),
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: data.co > 100 ? Colors.redAccent : data.co > 40 ? Colors.orangeAccent : Colors.white70,
                                         fontWeight: data.co > 40 ? FontWeight.bold : FontWeight.normal,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  // AQI
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+                                    child: Text(
+                                      '${data.aqi}',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: data.aqi > 300 ? Colors.redAccent : data.aqi > 150 ? Colors.orangeAccent : Colors.white70,
+                                        fontWeight: data.aqi > 150 ? FontWeight.bold : FontWeight.normal,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
